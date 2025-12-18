@@ -2,53 +2,83 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const SERVER_BASE_URL = 'https://nftmatchbot20250730152328.azurewebsites.net';
     const CACHE_KEY = 'giftNamesCache';
+    const INIT_DATA_KEY = 'tgInitData';
+    const BYPASS_KEY_STORAGE = 'apiBypassKey';
 
     const tgGateOverlay = document.getElementById('tg-gate-overlay');
     const body = document.body;
 
-    const checkEnvironmentAndGate = () => {
-    
+    function saveInitData() {
         if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) {
-            
-            console.log('Running inside Telegram WebApp. Initializing app...');
-            try {
-                const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
-                if (tgUser) {
-                    const userData = {
-                        telegramId: parseInt(tgUser.id, 10), 
-                        username: tgUser.username || null,
-                        firstName: tgUser.first_name || null,
-                        lastName: tgUser.last_name || null,
-                    };
-                    sessionStorage.setItem('tgUser', JSON.stringify(userData));
-                    console.log('REAL User data SAVED to sessionStorage:', userData);
-                } else {
-                    sessionStorage.removeItem('tgUser');
-                    console.warn('tgUser object not found in initDataUnsafe, clearing cache.');
+            const initData = window.Telegram.WebApp.initData;
+            if (initData) {
+                try {
+                    sessionStorage.setItem(INIT_DATA_KEY, initData);
+                    console.log('[Auth] InitData saved to sessionStorage.');
+                } catch (e) {
+                    console.error('[Auth] Failed to save InitData:', e);
                 }
-            } catch (e) {
-                console.error('Failed to save REAL user data to sessionStorage:', e);
-                sessionStorage.removeItem('tgUser');
-            }
-
-        } else {
-            
-            console.log('Not in Telegram WebApp. Saving FAKE user data for testing.');
-            try {
-                const testUserData = {
-                    telegramId: 7593322, 
-                    username: "UserOwner583",
-                    firstName: "Test",
-                    lastName: "Test",
-                };
-                sessionStorage.setItem('tgUser', JSON.stringify(testUserData));
-                console.log('FAKE User data SAVED to sessionStorage:', testUserData);
-            } catch (e) {
-                console.error('Failed to save FAKE user data to sessionStorage:', e);
+                
+                try {
+                    const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
+                    if (tgUser) {
+                        const userData = {
+                            telegramId: parseInt(tgUser.id, 10), 
+                            username: tgUser.username || null,
+                            firstName: tgUser.first_name || null,
+                            lastName: tgUser.last_name || null,
+                        };
+                        sessionStorage.setItem('tgUser', JSON.stringify(userData));
+                    }
+                } catch (e) { /* ignore */ }
+                
+                return true;
             }
         }
+        
+        const cachedInitData = sessionStorage.getItem(INIT_DATA_KEY);
+        if (cachedInitData) {
+            return true;
+        }
 
-        return true; 
+        const bypassKey = sessionStorage.getItem(BYPASS_KEY_STORAGE);
+        if (bypassKey) {
+            return true;
+        }
+
+        return false;
+    }
+
+    const checkEnvironmentAndGate = () => {
+        const isAuthAvailable = saveInitData();
+
+        if (isAuthAvailable) {
+            console.log('Environment: Authorized (Telegram or Bypass).');
+            if (tgGateOverlay) tgGateOverlay.classList.add('hidden');
+            body.classList.remove('body-gated');
+            
+            // --- ДОБАВЛЯЕМ КЛАСС ДЛЯ ПОЛНОЭКРАННОГО РЕЖИМА (ОТСТУП В ШАПКЕ) ---
+            body.classList.add('tg-fullscreen');
+            
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.expand(); // Разворачиваем на весь экран
+            }
+            return true;
+        } else {
+            console.warn('Environment: Unauthorized (Outside Telegram). Showing Gate.');
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const bypass = urlParams.get('bypass');
+            if (bypass) {
+                sessionStorage.setItem(BYPASS_KEY_STORAGE, bypass);
+                window.location.reload();
+                return true;
+            }
+
+            if (tgGateOverlay) tgGateOverlay.classList.remove('hidden');
+            body.classList.add('body-gated');
+            return false;
+        }
     };
 
     const signalTelegramAppReady = () => {
@@ -71,8 +101,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         console.log('Cache is empty. Fetching gift names from server...');
+        
+        let authHeader = 'Tma invalid';
+        const initData = sessionStorage.getItem(INIT_DATA_KEY);
+        if (initData) authHeader = `Tma ${initData}`;
+        else {
+             const bypass = sessionStorage.getItem(BYPASS_KEY_STORAGE);
+             if(bypass) authHeader = `Tma ${bypass}`;
+        }
+
         try {
-            const response = await fetch(`${SERVER_BASE_URL}/api/ListGifts/AllGiftNames`);
+            const response = await fetch(`${SERVER_BASE_URL}/api/ListGifts/AllGiftNames`, {
+                headers: { 'Authorization': authHeader }
+            });
+            
             if (!response.ok) {
                 throw new Error(`Server responded with status: ${response.status}`);
             }
@@ -84,12 +126,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Failed to preload gift names:', error);
+            signalTelegramAppReady(); 
         }
     };
 
-    const isTelegramEnvironment = checkEnvironmentAndGate();
+    const isAuthorized = checkEnvironmentAndGate();
 
-    if (isTelegramEnvironment) {
+    if (isAuthorized) {
         preloadGiftNames();
     }
 });
