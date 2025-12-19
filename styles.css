@@ -576,3 +576,60 @@ main {
 .tg-gate-modal p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; margin: 0 0 1.5rem 0; width: 100%; text-align: left; }
 .tg-gate-link { display: block; width: 100%; background-color: var(--primary-color); color: var(--text-primary); text-decoration: none; padding: 0.8rem 1.5rem; border-radius: var(--radius); font-weight: 600; font-size: 1rem; transition: background-color 0.2s; }
 .tg-gate-link:hover { background-color: var(--primary-hover); }
+
+/* ============================================= */
+/* ========== ШАПКА (SAFE AREA) ================ */
+/* ============================================= */
+
+header.safe-area-gradient {
+    /* ❗️ ИЗМЕНЕНИЕ: absolute вместо fixed. 
+       Теперь это часть страницы, а не экрана. Скроллится вместе с контентом. */
+    position: absolute; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px; /* Чуть увеличил высоту градиента, чтобы было плавнее */
+    
+    /* Делаем z-index маленьким, чтобы модалки были поверх него */
+    z-index: 10; 
+    
+    /* Градиент */
+    background: linear-gradient(180deg, #0a1020 20%, rgba(10, 16, 32, 0) 100%);
+    
+    /* Пропускаем клики, чтобы можно было нажать кнопки под тенью */
+    pointer-events: none;
+    
+    padding: 0;
+    border: none;
+    backdrop-filter: none;
+}
+
+/* Скрываем всё, что могло остаться внутри хедера */
+header .header-content,
+header nav,
+header a {
+    display: none;
+}
+
+/* ============================================= */
+/* ========== ОТСТУП КОНТЕНТА ================== */
+/* ============================================= */
+
+/* Сдвигаем контент вниз, чтобы он красиво выезжал из-под градиента */
+main {
+    padding-top: 70px; 
+    padding-bottom: 40px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.main-container {
+    width: 100%;
+    max-width: 600px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 0; /* Убираем margin, если был */
+}
