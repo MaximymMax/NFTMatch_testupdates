@@ -8,6 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const tgGateOverlay = document.getElementById('tg-gate-overlay');
     const body = document.body;
 
+    if (window.Telegram && window.Telegram.WebApp) {
+        window.Telegram.WebApp.ready();
+        // Скрываем кнопку "Назад", так как мы на главной
+        window.Telegram.WebApp.BackButton.hide();
+    }
+
     function saveInitData() {
         if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) {
             const initData = window.Telegram.WebApp.initData;
@@ -48,6 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return false;
     }
+
+    saveInitData();
+
 
     const checkEnvironmentAndGate = () => {
         const isAuthAvailable = saveInitData();
