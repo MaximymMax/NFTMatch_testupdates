@@ -9,33 +9,48 @@ document.addEventListener('DOMContentLoaded', () => {
     function initTelegramData() {
         if (window.Telegram && window.Telegram.WebApp) {
             const tg = window.Telegram.WebApp;
-            tg.ready();
-            
-            // --- 1. ЛОГИКА КНОПКИ НАЗАД ---
+            tg.ready(); // Сообщаем о готовности
+            tg.expand(); // На всякий случай разворачиваем
+
+            // --- КНОПКА НАЗАД ---
+            // Сначала удаляем старые обработчики, чтобы не двоилось
+            tg.BackButton.offClick();
             
             // Показываем кнопку
             tg.BackButton.show();
             
-            // Обрабатываем нажатие (возвращаемся на index.html)
+            // Назначаем действие
             tg.BackButton.onClick(() => {
-                // Важно: отписываемся от события, чтобы не дублировать клики (на всякий случай)
-                tg.BackButton.offClick(); 
-                // Переходим на главную
                 window.location.href = 'index.html';
             });
+            // --------------------
 
-            // --- КОНЕЦ ЛОГИКИ КНОПКИ ---
+            // --- АВТОРИЗАЦИЯ ---
+            // Пытаемся взять свежие данные из Телеграма
+            const freshInitData = tg.initData;
+            
+            if (freshInitData) {
+                // Если Телеграм дал данные - сохраняем их
+                sessionStorage.setItem(INIT_DATA_KEY, freshInitData);
+                console.log("[BG Finder] InitData updated from Telegram.");
+            } else {
+                // Если Телеграм пустой (редко, но бывает при отладке), проверяем storage
+                console.log("[BG Finder] Telegram initData is empty, using sessionStorage fallback.");
+            }
 
-            const initData = tg.initData;
-            // ... (твой старый код сохранения данных) ...
-            if (initData) {
-                sessionStorage.setItem(INIT_DATA_KEY, initData);
-                // ...
+            // Сохраняем пользователя для красоты
+            const user = tg.initDataUnsafe?.user;
+            if (user) {
+                sessionStorage.setItem('tgUser', JSON.stringify({
+                    telegramId: user.id,
+                    username: user.username,
+                    firstName: user.first_name
+                }));
             }
         }
     }
 
-    // ❗️ 2. Вызываем её сразу же
+    // ВЫЗЫВАЕМ ФУНКЦИЮ СРАЗУ
     initTelegramData();
 
     let hasUserModifiedColors = false;
@@ -245,18 +260,22 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     function getApiAuthHeader() {
-    const bypassKey = sessionStorage.getItem('apiBypassKey'); // BYPASS_KEY_STORAGE
-    if (bypassKey) {
-        return `Tma ${bypassKey}`; // Или просто bypassKey, зависит от того как бэкэнд ждет
-    }
+        // 1. Сначала проверяем ключ разработчика (если есть)
+        const bypassKey = sessionStorage.getItem(BYPASS_KEY_STORAGE);
+        if (bypassKey) {
+            return `Tma ${bypassKey}`; // Или просто bypassKey, если на бэке так настроено
+        }
 
-    const initData = sessionStorage.getItem('tgInitData'); // INIT_DATA_KEY
-    if (initData) {
-        return `Tma ${initData}`;
-    }
+        // 2. Потом проверяем данные из Телеграма
+        const initData = sessionStorage.getItem(INIT_DATA_KEY);
+        if (initData) {
+            return `Tma ${initData}`;
+        }
 
-    return 'Tma invalid';
-}
+        // 3. Если ничего нет
+        console.warn("Auth token missing!");
+        return 'Tma invalid';
+    }
 
 
     async function secureFetch(apiUrl, requestBody, signal = null) {
