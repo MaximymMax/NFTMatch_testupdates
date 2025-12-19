@@ -1,5 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
     
+    if (window.Telegram && window.Telegram.WebApp) {
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        
+        // На главной странице кнопка "Назад" НЕ нужна
+        tg.BackButton.hide(); 
+        
+        // Принудительно сохраняем данные при входе
+        if (tg.initData) {
+            sessionStorage.setItem('tgInitData', tg.initData);
+            console.log("Main Page: InitData saved.");
+        }
+    }
+
     const SERVER_BASE_URL = 'https://nftmatchbot20250730152328.azurewebsites.net';
     const CACHE_KEY = 'giftNamesCache';
     const INIT_DATA_KEY = 'tgInitData';
