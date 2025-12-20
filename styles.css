@@ -75,7 +75,7 @@ main {
     justify-content: center;
     padding: 1rem;
     /* Учитываем Safe Area */
-    padding-top: 90px; 
+    padding-top: 100px; 
     padding-bottom: 40px;
     width: 100%;
 }
@@ -645,3 +645,4 @@ header nav,
 header a {
     display: none;
 }
+
