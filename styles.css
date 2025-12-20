@@ -38,27 +38,20 @@ header {
     border-bottom-left-radius: var(--radius);
     border-bottom-right-radius: var(--radius);
     box-shadow: var(--card-shadow);
-    
-    /* Стандартные отступы (для обычного режима) */
     padding: 0.5rem 1.2rem; 
-    
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: relative;
     z-index: 50;
     height: auto;
-    
     transition: padding-top 0.3s ease;
 }
 
-/* 🔥 Адаптация под Telegram WebApp (Back Button) */
-/* Этот стиль срабатывает, только если JS добавит класс .tg-fullscreen */
 body.tg-fullscreen header {
-    padding-top: 25px; /* Резервируем место под системные кнопки */
+    padding-top: 25px; 
 }
 
-/* Стили для ссылки-логотипа слева */
 .header-logo-link {
     display: flex;
     align-items: center;
@@ -66,7 +59,6 @@ body.tg-fullscreen header {
     text-decoration: none;
 }
 
-/* Иконка логотипа слева */
 .header-icon-main {
     width: 32px;
     height: 32px;
@@ -82,6 +74,10 @@ main {
     display: flex;
     justify-content: center;
     padding: 1rem;
+    /* Учитываем Safe Area */
+    padding-top: 90px; 
+    padding-bottom: 40px;
+    width: 100%;
 }
 
 .main-container {
@@ -91,10 +87,13 @@ main {
     border-radius: var(--radius);
     box-shadow: var(--card-shadow);
     padding: 1rem; 
-    margin-top: 0.5rem;
+    margin-top: 0;
     margin-bottom: 3rem;
     position: relative;
-    overflow: hidden;   
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;   
 }
 
 /* ========================================= */
@@ -105,17 +104,80 @@ main {
     position: relative;
     padding: 0 1rem 1rem 1rem;
     text-align: center;
-    margin-bottom: 1rem;
+    margin-bottom: 0; 
     z-index: 10; 
 }
 
-/* --- СВЕЧЕНИЕ --- */
+/* --- CAROUSEL STYLES --- */
+.hero-carousel-wrapper {
+    position: relative;
+    width: 100%;
+    height: 70px; /* Высота области карусели уменьшена */
+    overflow: hidden;
+    margin-bottom: 20px;
+    /* Маска для плавного исчезновения краев */
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%);
+    
+    /* Скрываем, пока JS не загрузит данные */
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+.hero-carousel-wrapper.hidden {
+    display: none;
+    opacity: 0;
+}
+
+.hero-carousel-track {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Расстояние между карточками */
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    cursor: grab;
+    touch-action: pan-x; /* Разрешаем скролл по X для тача */
+    will-change: transform;
+}
+
+.hero-carousel-track:active {
+    cursor: grabbing;
+}
+
+.carousel-card {
+    flex: 0 0 auto;
+    width: 50px;  /* Уменьшен размер */
+    height: 50px; /* Уменьшен размер */
+    border-radius: 12px; /* Чуть меньше радиус */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    user-select: none; 
+    -webkit-user-select: none;
+    /* Фон задается в JS */
+}
+
+.carousel-card img {
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+    z-index: 2;
+    filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));
+    pointer-events: none; 
+}
+
+/* --- СВЕЧЕНИЕ (Опущено ниже) --- */
 .glow-effect {
     display: block; 
     position: absolute;
-    top: 80px; 
-    width: 40px;
-    height: 180px;
+    top: 140px; /* Опустили свечение значительно ниже */
+    width: 20px;
+    height: 250px;
     background: #00bfff; 
     filter: blur(45px); 
     opacity: 0.8; 
@@ -126,30 +188,12 @@ main {
 .glow-left { left: -20px; }
 .glow-right { right: -20px; }
 
-/* --- ДЕКОРАТИВНЫЕ КАРТОЧКИ --- */
-.deco-card {
-    position: absolute;
-    background: #0ea5e9;
-    border-radius: 6px; 
-    opacity: 0.9;
-    z-index: 1; 
-    box-shadow: none;
-}
-
-.card-left-1 { width: 25px; height: 25px; top: 90px; left: 10px; transform: rotate(-15deg); }
-.card-left-2 { width: 30px; height: 30px; top: 147px; left: 20px; transform: rotate(10deg); }
-.card-left-3 { width: 25px; height: 25px; top: 210px; left: 10px; transform: rotate(-5deg); }
-
-.card-right-1 { width: 25px; height: 25px; top: 90px; right: 10px; transform: rotate(15deg); }
-.card-right-2 { width: 30px; height: 30px; top: 147px; right: 20px; transform: rotate(-10deg); }
-.card-right-3 { width: 25px; height: 25px; top: 210px; right: 10px; transform: rotate(5deg); }
-
 
 /* --- Контент внутри Hero --- */
 .hero-content {
     position: relative;
     z-index: 10; 
-    max-width: 550px; 
+    max-width: 700px; /* УВЕЛИЧЕНО с 550px, чтобы текст мог быть шире */
     margin: 0 auto;
 }
 
@@ -165,14 +209,14 @@ main {
     font-size: 0.8rem;
     line-height: 1.5;
     color: var(--text-primary);
-    max-width: 460px;
+    max-width: 650px; /* УВЕЛИЧЕНО с 460px */
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 2rem;
     font-weight: 500;
     text-align: justify;
     text-align-last: center;
-    padding: 0 2.1rem;
+    padding: 0 1rem; /* Чуть уменьшил padding по бокам, раз ширина стала больше */
     opacity: 0.9;
 }
 
@@ -233,7 +277,6 @@ main {
 .tools-wrapper-styled {
     position: relative;
     padding: 2rem 0.5rem 1rem 0.5rem;
-    margin-top: 3rem;
 }
 
 .tools-wrapper-styled::before {
@@ -381,8 +424,8 @@ main {
 .info-cards-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 15px; /* Отступ между карточками */
-    margin-top: 2rem;
+    gap: 15px; 
+    margin-top: 1rem;
     padding: 0 0.5rem;
 }
 
@@ -390,7 +433,7 @@ main {
     display: flex;
     align-items: center;
     gap: 15px;
-    background-color: var(--surface-elevated); /* #1e2944 */
+    background-color: var(--surface-elevated); 
     border-radius: 16px;
     padding: 1.2rem;
     text-decoration: none;
@@ -402,7 +445,6 @@ main {
 
 .info-card:hover {
     transform: translateY(-2px);
-    /* Легкая подсветка при наведении */
     background-color: #263355; 
 }
 
@@ -447,14 +489,13 @@ main {
 
 /* --- СТИЛИ ДЛЯ API (Зеленое) --- */
 .card-api {
-    /* Легкий зеленый градиент слева */
     background-image: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, transparent 40%);
-    border-left: 2px solid #10b981; /* Зеленая полоска слева */
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.1); /* Зеленая тень */
+    border-left: 2px solid #10b981; 
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.1); 
 }
 
 .card-api .info-card-icon {
-    color: #34d399; /* Светло-зеленая иконка */
+    color: #34d399; 
     background: rgba(16, 185, 129, 0.15);
 }
 
@@ -464,14 +505,13 @@ main {
 
 /* --- СТИЛИ ДЛЯ ПОДДЕРЖКИ (Желтое) --- */
 .card-support {
-    /* Легкий желтый градиент слева */
     background-image: linear-gradient(90deg, rgba(245, 158, 11, 0.1) 0%, transparent 40%);
-    border-left: 2px solid #f59e0b; /* Желтая полоска слева */
-    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.1); /* Желтая тень */
+    border-left: 2px solid #f59e0b; 
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.1); 
 }
 
 .card-support .info-card-icon {
-    color: #fbbf24; /* Светло-желтая иконка */
+    color: #fbbf24; 
     background: rgba(245, 158, 11, 0.15);
 }
 
@@ -529,19 +569,12 @@ main {
         padding: 12px;
     }
     
-    .card-left-1 { top: 70px; left: 30px; width: 18px; height: 18px; }
-    .card-left-2 { top: 140px; left: 60px; width: 24px; height: 24px; }
-    .card-left-3 { top: 220px; left: 40px; width: 16px; height: 16px; }
-    
-    .card-right-1 { top: 70px; right: 30px; width: 18px; height: 18px; }
-    .card-right-2 { top: 140px; right: 60px; width: 24px; height: 24px; }
-    .card-right-3 { top: 220px; right: 40px; width: 16px; height: 16px; }
+    /* Медиа-запросы для карточек тоже удалены */
     
     .glow-effect {
         display: none; 
     }
     
-    /* Для новых карточек */
     .info-cards-wrapper {
         flex-direction: row;
     }
@@ -582,54 +615,21 @@ main {
 /* ============================================= */
 
 header.safe-area-gradient {
-    /* ❗️ ИЗМЕНЕНИЕ: absolute вместо fixed. 
-       Теперь это часть страницы, а не экрана. Скроллится вместе с контентом. */
     position: absolute; 
     top: 0;
     left: 0;
     width: 100%;
-    height: 70px; /* Чуть увеличил высоту градиента, чтобы было плавнее */
-    
-    /* Делаем z-index маленьким, чтобы модалки были поверх него */
+    height: 70px;
     z-index: 10; 
-    
-    /* Градиент */
     background: linear-gradient(180deg, #0a1020 20%, rgba(10, 16, 32, 0) 100%);
-    
-    /* Пропускаем клики, чтобы можно было нажать кнопки под тенью */
     pointer-events: none;
-    
     padding: 0;
     border: none;
     backdrop-filter: none;
 }
 
-/* Скрываем всё, что могло остаться внутри хедера */
 header .header-content,
 header nav,
 header a {
     display: none;
-}
-
-/* ============================================= */
-/* ========== ОТСТУП КОНТЕНТА ================== */
-/* ============================================= */
-
-/* Сдвигаем контент вниз, чтобы он красиво выезжал из-под градиента */
-main {
-    padding-top: 70px; 
-    padding-bottom: 40px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
-
-.main-container {
-    width: 100%;
-    max-width: 600px;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    margin-top: 0; /* Убираем margin, если был */
 }
