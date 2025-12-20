@@ -199,8 +199,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 4. Animation & Interaction Logic
             let x = 0;
-            let speed = 0.8; // Базовая скорость
-            const baseSpeed = 0.8;
+            let speed = 0.4; // ИЗМЕНЕНО: Базовая скорость уменьшена
+            const baseSpeed = 0.4; // ИЗМЕНЕНО: Базовая скорость уменьшена
             let isDragging = false;
             let startX = 0;
             let currentTranslateX = 0;
