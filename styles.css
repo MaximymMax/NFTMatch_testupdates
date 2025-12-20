@@ -162,25 +162,38 @@ main {
     /* Фон задается в JS */
 }
 
+/* ЗАТЕМНЕНИЕ ФОНА (Overlay) */
+.carousel-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.25); /* 25% затемнения */
+    z-index: 1;
+    pointer-events: none;
+}
+
 .carousel-card img {
     width: 80%;
     height: 80%;
     object-fit: contain;
-    z-index: 2;
+    z-index: 2; /* Поверх затемнения */
     filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));
     pointer-events: none; 
 }
 
-/* --- СВЕЧЕНИЕ (Опущено ниже) --- */
+/* --- СВЕЧЕНИЕ (Опущено ниже и осветлено) --- */
 .glow-effect {
     display: block; 
     position: absolute;
-    top: 140px; /* Опустили свечение значительно ниже */
-    width: 20px;
+    top: 140px; 
+    width: 30px;
     height: 250px;
-    background: #00bfff; 
+    background: #60a5fa; /* Более светлый голубой */
     filter: blur(45px); 
-    opacity: 0.8; 
+    opacity: 0.6; /* Снижена яркость */
     pointer-events: none;
     z-index: 0;
 }
@@ -193,7 +206,7 @@ main {
 .hero-content {
     position: relative;
     z-index: 10; 
-    max-width: 700px; /* УВЕЛИЧЕНО с 550px, чтобы текст мог быть шире */
+    max-width: 700px;
     margin: 0 auto;
 }
 
@@ -209,14 +222,14 @@ main {
     font-size: 0.8rem;
     line-height: 1.5;
     color: var(--text-primary);
-    max-width: 650px; /* УВЕЛИЧЕНО с 460px */
+    max-width: 650px; 
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 2rem;
     font-weight: 500;
     text-align: justify;
     text-align-last: center;
-    padding: 0 1rem; /* Чуть уменьшил padding по бокам, раз ширина стала больше */
+    padding: 0 1rem;
     opacity: 0.9;
 }
 
@@ -425,7 +438,6 @@ main {
     display: flex;
     flex-direction: column;
     gap: 15px; 
-    margin-top: 1rem;
     padding: 0 0.5rem;
 }
 
