@@ -135,7 +135,7 @@ main {
     justify-content: center;
     padding: 1rem;
     overflow-x: hidden;
-    padding-top: 70px !important; 
+    padding-top: 100px !important; 
 }
 
 
@@ -2448,4 +2448,5 @@ header.safe-area-gradient {
     
     .grid-top-1 .percent-big { font-size: 1.4rem; }
     .grid-top-1 .card-bottom-info { height: 50px; min-height: 50px; }
+
 }
