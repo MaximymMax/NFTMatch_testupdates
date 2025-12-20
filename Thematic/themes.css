@@ -79,7 +79,7 @@ header nav a svg { height: 1.5rem; width: 1.5rem; margin-bottom: 0.25rem; }
 main {
     display: flex; justify-content: center;
     padding: 1rem; overflow-x: hidden;
-    padding-top: 70px !important;
+    padding-top: 100px !important;
 }
 
 header .header-logo, 
@@ -539,4 +539,5 @@ label.control-label {
 @media (max-width: 480px) {
     .sort-row { gap: 8px; }
     .dropdown-header, .input-wrapper { padding-left: 0.8rem; padding-right: 0.8rem; }
+
 }
