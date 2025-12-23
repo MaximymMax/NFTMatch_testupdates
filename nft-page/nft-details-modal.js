@@ -299,11 +299,6 @@ export function initNftDetailsModal() {
         newUrl.searchParams.set('model', selectedModelName);
         window.history.pushState({ path: newUrl.href }, '', newUrl.href);
 
-        // Проверка версии для кнопки назад
-        if (tg && tg.BackButton && tg.version > '6.0') {
-            tg.BackButton.show();
-            tg.BackButton.onClick(closeNftDetailsModal);
-        }
     }
     
     function closeNftDetailsModal() {
@@ -317,12 +312,6 @@ export function initNftDetailsModal() {
         }
         document.body.classList.remove('modal-open');
         
-        // ИСПРАВЛЕНИЕ: Проверка поддержки BackButton
-        if (tg && tg.BackButton) {
-            tg.BackButton.offClick(closeNftDetailsModal);
-            tg.BackButton.hide();
-        }
-
         const content = document.getElementById('similarModelsList');
         if (content) content.innerHTML = '';
         
