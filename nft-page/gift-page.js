@@ -114,27 +114,29 @@ const GIFT_NAME_TO_ID = {
 };
 
 function setupTelegramBackButton() {
-    if (window.Telegram && window.Telegram.WebApp) {
-        const tg = window.Telegram.WebApp;
-        
-        // 1. Сначала удаляем старые обработчики!
-        tg.BackButton.offClick(); 
-        
-        // 2. Показываем кнопку
-        tg.BackButton.show();
-
-        // 3. Назначаем правильную логику
-        tg.BackButton.onClick(() => {
-            // Если есть история, возвращаемся назад (на страницу с фонами)
-            if (window.history.length > 1) {
-                window.history.back();
-            } else {
-                // Если истории нет, идем на главную
-                window.location.href = '../index.html';
-            }
-        });
-    }
+    const tg = window.Telegram.WebApp;
+    tg.BackButton.show();
+    tg.BackButton.offClick(); // Очистка старых событий
+    
+    tg.BackButton.onClick(() => {
+        // Если открыта любая модалка — кнопка ТГ на неё НЕ влияет (по вашему ТЗ)
+        // Она работает ТОЛЬКО как браузерная навигация между страницами
+        if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            window.location.href = '../index.html';
+        }
+    });
 }
+
+// Внутри DOMContentLoaded удалите лишние переопределения onClick:
+document.addEventListener('DOMContentLoaded', () => {
+    setupTelegramBackButton(); // Вызвать один раз
+    
+    // Удалите все блоки вида:
+    // tg.BackButton.onClick(() => { window.NFTDetailsModal.close(); });
+    // Кнопка ТГ больше не должна закрывать модалки.
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -1060,6 +1062,8 @@ function selectRandomGifts(count, allGiftNames, currentTargetGift) {
             return;
         }
         
+        const fragment = document.createDocumentFragment();
+
         toggleSortAndDisplayControls(true); 
 
         const currentMode = currentDisplayMode; 
@@ -1159,8 +1163,13 @@ function selectRandomGifts(count, allGiftNames, currentTargetGift) {
             });
 
             resultsGrid.appendChild(card);
+            fragment.appendChild(card);
         });
-        setupLazyLoading(resultsGrid, null, 'grid');
+        requestAnimationFrame(() => {
+            resultsGrid.innerHTML = '';
+            resultsGrid.appendChild(fragment);
+            setupLazyLoading(resultsGrid, null, 'grid');
+        });
     }
 
     giftDropdownHeader.addEventListener('click', (e) => {
